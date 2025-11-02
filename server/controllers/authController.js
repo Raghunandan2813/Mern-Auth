@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import userModel from '../models/userModel';
+import userModel from '../models/userModel.js';
+import transporter from '../config/nodemailer.js';
 
 
 export const register = async (req, res)=>{
@@ -35,9 +36,18 @@ if(existingUser){
         secure: process.env.NODE_ENV=== 'production',
         sameSite: process.env.NODE_ENV ==='production'? 'none': 'strict',
         maxAge: 7*24*60*1000
-    })
+    });
 
-    res.json({
+    const mailOptions ={
+        from: process.env.SENDER_EMAIL,
+        to: email,
+        subject: 'Welcome to CoderArmy!',
+        text: `Welcome ${name} to CoderArmy website. Your account has been created with email id: ${email}`
+    }
+    await transporter.sendMail(mailOptions);
+
+
+    return res.json({
         success : true
     })
 
